@@ -1,0 +1,15 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0; display: flex;
+}
+.sidebar { width: 220px; background: #1f2937; color: white; padding: 20px; height: 100vh; }
+.sidebar a { color: white; display: block; margin: 10px 0; text-decoration: none; }
+.sidebar a.active { font-weight: bold; }
+.content { flex: 1; padding: 20px; background: #f9f9f9; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+button { padding: 5px 10px; margin: 5px; }
+.hidden { display: none; }
+.login-container { max-width: 300px; margin: 100px auto; padding: 20px; border: 1px solid #ccc; background: white; }
+input { width: 100%; padding: 8px; margin: 5px 0; }
+.error { color: red; }

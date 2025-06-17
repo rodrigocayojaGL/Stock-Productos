@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Predictor Stock - Inventory App</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Inventory</h2>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="products.html">Products</a>
+    <a href="stock.html">Current Stock</a>
+    <a href="movements.html">Inventory Movement</a>
+    <a href="predictor.html" class="active">Predictor Stock</a>
+    <a href="#">Users</a>
+    <a href="#" onclick="logout()">Log out</a>
+  </div>
+  <div class="content">
+    <h2>Predictor Stock</h2>
+    <button onclick="showForm()">+ Add Prediction</button>
+    <table id="predictorTable">
+      <thead>
+        <tr>
+          <th>ID</th><th>Date</th><th>Product ID</th><th>Units Sold</th><th>Avg Price</th><th>Promo</th><th>Event</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div id="formContainer" class="form-popup hidden">
+      <h3>Add Prediction</h3>
+      <form id="predictorForm">
+        <input type="number" id="id" placeholder="ID" required />
+        <input type="datetime-local" id="date" required />
+        <input type="text" id="productId" placeholder="Product ID" required />
+        <input type="number" id="unitsSold" placeholder="Units Sold" required />
+        <input type="number" step="0.01" id="avgSalePrice" placeholder="Avg Price" required />
+        <label><input type="checkbox" id="promotionActive" /> Promotion Active</label>
+        <input type="text" id="specialEvent" placeholder="Special Event" />
+        <button type="submit">Save</button>
+        <button type="button" onclick="hideForm()">Cancel</button>
+      </form>
+    </div>
+  </div>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/predictor.js"></script>
+</body>
+</html>
