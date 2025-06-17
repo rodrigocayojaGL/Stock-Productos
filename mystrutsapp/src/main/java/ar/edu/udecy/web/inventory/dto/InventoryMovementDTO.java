@@ -5,13 +5,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class InventoryMovementDTO {
     private String movementId;
-    private Timestamp date;
+    private LocalDateTime date;
     private String productId;
     private String movementType;
     private int quantity;

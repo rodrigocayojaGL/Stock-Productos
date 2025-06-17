@@ -22,6 +22,7 @@ class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/login").permitAll() // Permitir login sin autenticación
+                        .requestMatchers("/", "/**.html", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/users").hasRole("ADMIN") // Solo ROLE_ADMIN puede acceder a /users
                         .anyRequest().authenticated()) // Requerir autenticación para otros endpoints
                 .headers(AbstractHttpConfigurer::disable) // Necesario para H2 Console

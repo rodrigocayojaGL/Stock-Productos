@@ -44,8 +44,8 @@ package ar.edu.udecy.web.inventory.controller.impl;
         }
 
         @Override
-        @DeleteMapping("/{id}")
-        public void deleteUser(@PathVariable Long id) {
-            userService.deleteUser(id);
+        @DeleteMapping("/{username}")
+        public void deleteUser(@PathVariable String username) {
+            userService.deleteUser(username);
         }
     }

@@ -2,17 +2,23 @@ package ar.edu.udecy.web.inventory.service.impl;
 
 import ar.edu.udecy.web.inventory.config.CopyNonNullConfig;
 import ar.edu.udecy.web.inventory.dto.InventoryMovementDTO;
-import ar.edu.udecy.web.inventory.dto.ProductDTO;
+import ar.edu.udecy.web.inventory.entity.CurrentStockEntity;
 import ar.edu.udecy.web.inventory.entity.InventoryMovementEntity;
 import ar.edu.udecy.web.inventory.entity.ProductEntity;
+import ar.edu.udecy.web.inventory.handler.exception.NegativeQuantityException;
 import ar.edu.udecy.web.inventory.handler.exception.ProductAlreadyExistsException;
 import ar.edu.udecy.web.inventory.handler.exception.ResourceNotFoundException;
+import ar.edu.udecy.web.inventory.handler.exception.StockNotFoundException;
+import ar.edu.udecy.web.inventory.repository.CurrentStockRepository;
 import ar.edu.udecy.web.inventory.repository.InventoryMovementRepository;
 import ar.edu.udecy.web.inventory.repository.ProductRepository;
 import ar.edu.udecy.web.inventory.service.InventoryMovementService;
+import ch.qos.logback.core.joran.conditional.IfAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -22,6 +28,8 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
 
     @Autowired
     private InventoryMovementRepository inventoryMovementRepository;
+    @Autowired
+    private CurrentStockRepository currentStockRepository;
 
     @Autowired
     private ProductRepository productRepository;
@@ -43,13 +51,22 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
     @Override
     public InventoryMovementDTO save(InventoryMovementDTO inventoryMovementDTO) {
         validateProductDTO(inventoryMovementDTO);
+        if (inventoryMovementDTO.getQuantity() < 0) {
+            throw new NegativeQuantityException("Quantity cannot be negative");
+        }
+        inventoryMovementRepository.findById(inventoryMovementDTO.getMovementId())
+                .ifPresent(existing -> {
+                    throw new ProductAlreadyExistsException("Inventory movement with ID " + inventoryMovementDTO.getMovementId() + " already exists");
+                });
 
-        if (inventoryMovementRepository.existsById(inventoryMovementDTO.getMovementId())) {
-            throw new ProductAlreadyExistsException("Movement with ID " + inventoryMovementDTO.getMovementId() + " already exists");
+        if  (inventoryMovementDTO.getProductId() == null) {
+            throw new ResourceNotFoundException("Product information is missing in the request.");
         }
 
-        ProductEntity product = findProductById(inventoryMovementDTO.getProductId());
 
+        ProductEntity product = findProductById(inventoryMovementDTO.getProductId());
+        inventoryMovementDTO.setDate(Objects.isNull(inventoryMovementDTO.getDate())? LocalDateTime.now() : inventoryMovementDTO.getDate());
+        deductFromCurrentStockPost(null ,product, inventoryMovementDTO.getQuantity(),inventoryMovementDTO.getMovementType());
         InventoryMovementEntity entity = convertToEntity(inventoryMovementDTO, product);
         InventoryMovementEntity savedEntity = inventoryMovementRepository.save(entity);
 
@@ -61,10 +78,23 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
         InventoryMovementEntity existingInventory = inventoryMovementRepository.findById(movementId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movement with ID " + movementId + " not found"));
 
-        if (inventoryMovementDTO.getProductId() != null) {
-           findProductById(inventoryMovementDTO.getProductId());
+        validateProductDTO(inventoryMovementDTO);
+
+        if (inventoryMovementDTO.getQuantity() < 0) {
+            throw new NegativeQuantityException("Quantity cannot be negative");
         }
 
+        ProductEntity product = findProductById(inventoryMovementDTO.getProductId());
+        // Deduct quantity from current stock if quantity is updated
+        if (inventoryMovementDTO.getQuantity() >= 0) {
+
+            if (Objects.isNull(inventoryMovementDTO.getMovementId())) {
+                deductFromCurrentStockPut(existingInventory, product, inventoryMovementDTO.getQuantity(), inventoryMovementDTO.getMovementType());
+            } else {
+                deductFromCurrentStockPost(existingInventory, product, inventoryMovementDTO.getQuantity(), inventoryMovementDTO.getMovementType());
+            }
+        }
+        inventoryMovementDTO.setDate(LocalDateTime.now());
         CopyNonNullConfig.copyNonNullProperties(inventoryMovementDTO, existingInventory);
 
         InventoryMovementEntity updatedEntity = inventoryMovementRepository.save(existingInventory);
@@ -112,5 +142,63 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
         if (inventoryMovementDTO.getProductId() == null) {
             throw new ResourceNotFoundException("Product information is missing in the request.");
         }
+    }
+
+    private void deductFromCurrentStockPost(InventoryMovementEntity existingInventory, ProductEntity productEntity, int quantity, String movementType) {
+        CurrentStockEntity currentStock = currentStockRepository.findByProduct_ProductId(productEntity.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Current stock not found for product ID: " + productEntity.getProductId()));
+
+        switch (movementType.toUpperCase()) {
+            case "OUTBOUND":
+                if (currentStock.getQuantity() < quantity) {
+                    throw new StockNotFoundException("Insufficient stock for product ID: " + productEntity.getProductId());
+                }
+                currentStock.setQuantity(currentStock.getQuantity() - quantity);
+                break;
+
+            case "INBOUND":
+                currentStock.setQuantity(currentStock.getQuantity() + quantity);
+                break;
+
+            case "UPDATE":
+                currentStock.setQuantity(currentStock.getQuantity() + existingInventory.getQuantity() - quantity);
+                break;
+
+            default:
+                throw new StockNotFoundException("Invalid movement type: " + movementType);
+        }
+
+        currentStock.setTotalInventoryCost(currentStock.getTotalInventoryCost().add(
+                BigDecimal.valueOf(quantity).multiply(productEntity.getSalePrice())));
+        currentStock.setLastUpdated(LocalDateTime.now());
+        currentStockRepository.save(currentStock);
+    }
+    private void deductFromCurrentStockPut(InventoryMovementEntity existingInventory, ProductEntity productEntity, int quantity, String movementType) {
+        CurrentStockEntity currentStock = currentStockRepository.findByProduct_ProductId(productEntity.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Current stock not found for product ID: " + productEntity.getProductId()));
+        switch (movementType.toUpperCase()) {
+            case "OUTBOUND":
+                if (currentStock.getQuantity() < quantity) {
+                    throw new StockNotFoundException("Insufficient stock for product ID: " + productEntity.getProductId());
+                }
+                currentStock.setQuantity(currentStock.getQuantity() + existingInventory.getQuantity() - quantity
+                );
+                break;
+
+            case "INBOUND":
+                currentStock.setQuantity(currentStock.getQuantity() - existingInventory.getQuantity() + quantity);
+                break;
+
+            case "UPDATE":
+                currentStock.setQuantity(currentStock.getQuantity() + existingInventory.getQuantity() - quantity);
+                break;
+
+            default:
+                throw new StockNotFoundException("Invalid movement type: " + movementType);
+        }
+
+        currentStock.setTotalInventoryCost( BigDecimal.valueOf(quantity).multiply(productEntity.getSalePrice()));
+        currentStock.setLastUpdated(LocalDateTime.now());
+        currentStockRepository.save(currentStock);
     }
 }

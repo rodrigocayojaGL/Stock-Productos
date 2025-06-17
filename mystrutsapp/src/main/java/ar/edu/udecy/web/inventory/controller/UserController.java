@@ -10,5 +10,5 @@ public interface UserController {
     UserResponseDTO getUserById(Long id);
     List<UserResponseDTO> getAllUsers();
     UserResponseDTO updateUser(Long id, UserRequestDTO userRequestDTO);
-    void deleteUser(Long id);
+    void deleteUser(String username);
 }

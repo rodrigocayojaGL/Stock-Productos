@@ -11,6 +11,26 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(NegativeQuantityException.class)
+    public ResponseEntity<ErrorDTO> handleNegativeQuantityException(NegativeQuantityException ex) {
+        ErrorDTO errorDTO = new ErrorDTO(
+                ex.getMessage(),
+                "Negative Quantity Error",
+                HttpStatus.BAD_REQUEST.value()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+    }
+
+    @ExceptionHandler(StockNotFoundException.class)
+    public ResponseEntity<ErrorDTO> handleStockNotFoundException(StockNotFoundException ex) {
+        ErrorDTO errorDTO = new ErrorDTO(
+                ex.getMessage(),
+                "Stock Not Found",
+                HttpStatus.NOT_FOUND.value()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+    }
+
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ErrorDTO> handleInvalidCredentialsException(InvalidCredentialsException ex) {
         ErrorDTO errorDTO = new ErrorDTO(

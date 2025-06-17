@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Management - Inventory App</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="sidebar">
+  <h2>Inventory</h2>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="products.html">Products</a>
+  <a href="stock.html">Current Stock</a>
+  <a href="movements.html">Inventory Movement</a>
+  <a href="predictor.html">Predictor Stock</a>
+  <a href="user.html" class="active">Users</a>
+  <a href="#" onclick="logout()">Log out</a>
+</div>
+
+<div class="content">
+  <h2>User Management</h2>
+  <button onclick="showUserForm()">+ Add User</button>
+
+  <table id="usersTable">
+    <thead>
+    <tr>
+      <th>ID</th><th>Username</th><th>Actions</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="userFormContainer" class="form-popup hidden">
+    <h3>Add User</h3>
+    <form id="userForm">
+      <input type="text" id="username" placeholder="Username" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit">Save</button>
+      <button type="button" onclick="hideUserForm()">Cancel</button>
+    </form>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/user.js"></script>
+</body>
+</html>

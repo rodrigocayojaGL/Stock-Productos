@@ -17,5 +17,5 @@ public class CurrentStockDTO {
     private String productId;
     private Integer quantity;
     private LocalDateTime lastUpdated;
-    private Double totalInventoryCost;
+    private BigDecimal totalInventoryCost;
 }

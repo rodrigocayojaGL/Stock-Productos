@@ -55,11 +55,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException("User not found with ID: " + id);
-        }
-        userRepository.deleteById(id);
+    public void deleteUser(String username) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
+            userRepository.deleteById(user.getId());
     }
 
     private UserResponseDTO mapToResponseDTO(UserEntity user) {

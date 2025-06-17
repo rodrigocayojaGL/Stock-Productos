@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "inventory_movement")
@@ -18,7 +19,7 @@ public class InventoryMovementEntity {
     private String movementId;
 
     @Column(name = "date")
-    private Timestamp date;
+    private LocalDateTime date;
 
     @Column(name = "product_id")
     private String productId;

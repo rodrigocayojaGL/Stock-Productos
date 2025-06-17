@@ -2,15 +2,19 @@ package ar.edu.udecy.web.inventory.service.impl;
 
 import ar.edu.udecy.web.inventory.config.CopyNonNullConfig;
 import ar.edu.udecy.web.inventory.dto.ProductDTO;
+import ar.edu.udecy.web.inventory.entity.CurrentStockEntity;
 import ar.edu.udecy.web.inventory.entity.ProductEntity;
 import ar.edu.udecy.web.inventory.handler.exception.ProductAlreadyExistsException;
 import ar.edu.udecy.web.inventory.handler.exception.ResourceNotFoundException;
+import ar.edu.udecy.web.inventory.repository.CurrentStockRepository;
 import ar.edu.udecy.web.inventory.repository.ProductRepository;
 import ar.edu.udecy.web.inventory.service.ProductService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,6 +24,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private CurrentStockRepository currentStockRepository;
 
     @Override
     public List<ProductDTO> findAll() {
@@ -42,9 +49,18 @@ public class ProductServiceImpl implements ProductService {
         }
 
         ProductEntity productEntity = convertToEntity(productDTO);
-        return convertToDTO(productRepository.save(productEntity));
-    }
+        ProductEntity savedProduct = productRepository.save(productEntity);
 
+        // Save corresponding CurrentStockEntity
+        CurrentStockEntity currentStockEntity = new CurrentStockEntity();
+        currentStockEntity.setProduct(savedProduct); // Associate with ProductEntity
+        currentStockEntity.setQuantity(0); // Default quantity
+        currentStockEntity.setLastUpdated(LocalDateTime.now());
+        currentStockEntity.setTotalInventoryCost(BigDecimal.ZERO); // Default inventory cost
+        currentStockRepository.save(currentStockEntity);
+
+        return convertToDTO(savedProduct);
+    }
     @Override
     public ProductDTO update(String productId, ProductDTO productDTO) {
         ProductEntity existingProduct = productRepository.findById(productId)

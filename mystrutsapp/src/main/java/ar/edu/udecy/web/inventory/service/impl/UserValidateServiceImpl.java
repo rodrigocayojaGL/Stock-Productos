@@ -39,4 +39,6 @@ public class UserValidateServiceImpl implements UserValidateService {
         // Return user details with token
         return new UserValidateResponseDTO(username, user.get().getRoles(), token);
     }
+
+
 }
