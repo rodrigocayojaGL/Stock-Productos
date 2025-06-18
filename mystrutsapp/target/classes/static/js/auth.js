@@ -16,6 +16,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (res.ok) {
         const data = await res.json();
         localStorage.setItem("token", data.token);
+        localStorage.setItem("username", data.username);
+
         window.location.href = "dashboard.html";
       } else {
         document.getElementById("errorMessage").textContent = "Invalid login";

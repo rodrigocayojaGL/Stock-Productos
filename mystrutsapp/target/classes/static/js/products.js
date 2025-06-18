@@ -3,9 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("productForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const product = {
-      productId: document.getElementById("productId").value,
+      productId: "P" + crypto.randomUUID(),
       productName: document.getElementById("productName").value,
-      sku: document.getElementById("sku").value,
+      sku: "SKU" + crypto.randomUUID(),
       salePrice: parseFloat(document.getElementById("price").value),
       category: document.getElementById("category").value,
       cost: 0, unitOfMeasure: "Unit", location: "A1", active: true

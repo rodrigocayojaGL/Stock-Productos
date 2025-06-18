@@ -1,119 +1,129 @@
 package ar.edu.udecy.web.inventory.service.impl;
 
-    import ar.edu.udecy.web.inventory.dto.CurrentStockDTO;
-    import ar.edu.udecy.web.inventory.entity.CurrentStockEntity;
-    import ar.edu.udecy.web.inventory.entity.ProductEntity;
-    import ar.edu.udecy.web.inventory.handler.exception.ResourceNotFoundException;
-    import ar.edu.udecy.web.inventory.repository.CurrentStockRepository;
-    import ar.edu.udecy.web.inventory.repository.ProductRepository;
-    import org.junit.jupiter.api.Test;
-    import org.junit.jupiter.api.extension.ExtendWith;
-    import org.mockito.InjectMocks;
-    import org.mockito.Mock;
-    import org.mockito.junit.jupiter.MockitoExtension;
+import ar.edu.udecy.web.inventory.dto.CurrentStockDTO;
+import ar.edu.udecy.web.inventory.entity.CurrentStockEntity;
+import ar.edu.udecy.web.inventory.entity.ProductEntity;
+import ar.edu.udecy.web.inventory.handler.exception.NegativeQuantityException;
+import ar.edu.udecy.web.inventory.handler.exception.ResourceNotFoundException;
+import ar.edu.udecy.web.inventory.repository.CurrentStockRepository;
+import ar.edu.udecy.web.inventory.repository.ProductRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-    import java.time.LocalDateTime;
-    import java.util.List;
-    import java.util.Optional;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
-    import static org.junit.jupiter.api.Assertions.*;
-    import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-    @ExtendWith(MockitoExtension.class)
-    class CurrentStockServiceImplTests {
+@ExtendWith(MockitoExtension.class)
+class CurrentStockServiceTest {
 
-        @Mock
-        private CurrentStockRepository currentStockRepository;
+    @Mock
+    private CurrentStockRepository currentStockRepository;
 
-        @Mock
-        private ProductRepository productRepository;
+    @Mock
+    private ProductRepository productRepository;
 
-        @InjectMocks
-        private CurrentStockServiceImpl currentStockService;
+    @InjectMocks
+    private CurrentStockServiceImpl currentStockService;
 
-        @Test
-        void shouldReturnAllCurrentStockDTOs() {
-            List<CurrentStockEntity> entities = List.of(
-                    new CurrentStockEntity(1L, "101", 50, LocalDateTime.now(), 500.0),
-                    new CurrentStockEntity(2L, "102", 30, LocalDateTime.now(), 300.0)
-            );
-            when(currentStockRepository.findAll()).thenReturn(entities);
+    private ProductEntity product;
+    private CurrentStockEntity currentStockEntity;
 
-            List<CurrentStockDTO> result = currentStockService.findAll();
+    @BeforeEach
+    void setUp() {
+        product = new ProductEntity();
+        product.setProductId("1L");
+        product.setSalePrice(BigDecimal.valueOf(50));
 
-            assertEquals(2, result.size());
-            assertEquals("101", result.get(0).getProductId());
-            assertEquals("102", result.get(1).getProductId());
-        }
-
-        @Test
-        void shouldReturnCurrentStockDTOById() {
-            CurrentStockEntity entity = new CurrentStockEntity(1L, "101", 50, LocalDateTime.now(), 500.0);
-            when(currentStockRepository.findById(101L)).thenReturn(Optional.of(entity));
-
-            CurrentStockDTO result = currentStockService.findById(101L);
-
-            assertNotNull(result);
-            assertEquals("101", result.getProductId());
-            assertEquals(50, result.getQuantity());
-        }
-
-        @Test
-        void shouldThrowExceptionWhenCurrentStockNotFoundById() {
-            when(currentStockRepository.findById(101L)).thenReturn(Optional.empty());
-
-            assertThrows(ResourceNotFoundException.class, () -> currentStockService.findById(101L));
-        }
-
-        @Test
-        void shouldSaveNewCurrentStockDTO() {
-            ProductEntity product = ProductEntity.builder().productName("Product A").productId("101").build();
-            CurrentStockEntity entity = new CurrentStockEntity(null, "101", 50, LocalDateTime.now(), 500.0);
-            CurrentStockEntity savedEntity = new CurrentStockEntity(1L, "101", 50, LocalDateTime.now(), 500.0);
-
-            when(productRepository.findById("101")).thenReturn(Optional.of(product));
-            when(currentStockRepository.save(any(CurrentStockEntity.class))).thenReturn(savedEntity);
-
-            CurrentStockDTO dto = new CurrentStockDTO(null, "101", 50, null, 500.0);
-            CurrentStockDTO result = currentStockService.save(dto);
-
-            assertNotNull(result);
-            assertEquals(1L, result.getId());
-            assertEquals("101", result.getProductId());
-        }
-
-        @Test
-        void shouldThrowExceptionWhenSavingExistingCurrentStock() {
-            when(currentStockRepository.existsById(1L)).thenReturn(true);
-
-            CurrentStockDTO dto = new CurrentStockDTO(1L, "101", 50, null, 500.0);
-
-            assertThrows(ResourceNotFoundException.class, () -> currentStockService.save(dto));
-        }
-
-
-        @Test
-        void shouldThrowExceptionWhenUpdatingNonExistentCurrentStock() {
-            when(currentStockRepository.findById(101L)).thenReturn(Optional.empty());
-
-            CurrentStockDTO dto = new CurrentStockDTO(null, "101", 60, null, 600.0);
-
-            assertThrows(ResourceNotFoundException.class, () -> currentStockService.update(101L, dto));
-        }
-
-        @Test
-        void shouldDeleteCurrentStockById() {
-            CurrentStockEntity entity = new CurrentStockEntity(1L, "101L", 50, LocalDateTime.now(), 500.0);
-            when(currentStockRepository.findById(101L)).thenReturn(Optional.of(entity));
-
-            assertDoesNotThrow(() -> currentStockService.deleteById(101L));
-            verify(currentStockRepository, times(1)).delete(entity);
-        }
-
-        @Test
-        void shouldThrowExceptionWhenDeletingNonExistentCurrentStock() {
-            when(currentStockRepository.findById(101L)).thenReturn(Optional.empty());
-
-            assertThrows(ResourceNotFoundException.class, () -> currentStockService.deleteById(101L));
-        }
+        currentStockEntity = new CurrentStockEntity();
+        currentStockEntity.setId(1L);
+        currentStockEntity.setProduct(product);
+        currentStockEntity.setQuantity(10);
+        currentStockEntity.setLastUpdated(LocalDateTime.now());
+        currentStockEntity.setTotalInventoryCost(BigDecimal.valueOf(500));
     }
+
+    @Test
+    void testFindById_Success() {
+        when(currentStockRepository.findById(1L)).thenReturn(Optional.of(currentStockEntity));
+
+        CurrentStockDTO result = currentStockService.findById(1L);
+
+        assertNotNull(result);
+        assertEquals("1L", result.getProductId());
+        assertEquals(10, result.getQuantity());
+        assertEquals(BigDecimal.valueOf(500), result.getTotalInventoryCost());
+    }
+
+    @Test
+    void testFindById_ThrowsResourceNotFoundException() {
+        when(currentStockRepository.findById(2L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> currentStockService.findById(2L));
+    }
+
+    @Test
+    void testSave_Success() {
+        CurrentStockDTO dto = new CurrentStockDTO(null, "1L", 10, LocalDateTime.now(), BigDecimal.ZERO);
+        when(productRepository.findById("1L")).thenReturn(Optional.of(product));
+        when(currentStockRepository.save(any(CurrentStockEntity.class))).thenReturn(currentStockEntity);
+
+        CurrentStockDTO result = currentStockService.save(dto);
+
+        assertNotNull(result);
+        assertEquals(10, result.getQuantity());
+        assertEquals(BigDecimal.valueOf(500), result.getTotalInventoryCost());
+    }
+
+    @Test
+    void testSave_ThrowsNegativeQuantityException() {
+        CurrentStockDTO dto = new CurrentStockDTO(null, "1L", -5, LocalDateTime.now(), BigDecimal.ZERO);
+
+        assertThrows(NegativeQuantityException.class, () -> currentStockService.save(dto));
+    }
+
+    @Test
+    void testUpdate_Success() {
+        CurrentStockDTO dto = new CurrentStockDTO(1L, "1L", 20, LocalDateTime.now(), BigDecimal.ZERO);
+        when(currentStockRepository.findById(1L)).thenReturn(Optional.of(currentStockEntity));
+        when(productRepository.findById("1L")).thenReturn(Optional.of(product));
+        when(currentStockRepository.save(any(CurrentStockEntity.class))).thenReturn(currentStockEntity);
+
+        CurrentStockDTO result = currentStockService.update(1L, dto);
+
+        assertNotNull(result);
+        assertEquals(20, result.getQuantity());
+        assertEquals(BigDecimal.valueOf(1000), result.getTotalInventoryCost());
+    }
+
+    @Test
+    void testUpdate_ThrowsResourceNotFoundException() {
+        CurrentStockDTO dto = new CurrentStockDTO(99L, "1L", 10, LocalDateTime.now(), BigDecimal.ZERO);
+        when(currentStockRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> currentStockService.update(99L, dto));
+    }
+
+    @Test
+    void testDeleteById_Success() {
+        when(currentStockRepository.findById(1L)).thenReturn(Optional.of(currentStockEntity));
+
+        currentStockService.deleteById(1L);
+
+        verify(currentStockRepository, times(1)).delete(currentStockEntity);
+    }
+
+    @Test
+    void testDeleteById_ThrowsResourceNotFoundException() {
+        when(currentStockRepository.findById(2L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> currentStockService.deleteById(2L));
+    }
+}

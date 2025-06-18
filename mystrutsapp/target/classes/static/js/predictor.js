@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const now = new Date().toISOString().slice(0, 19) + "Z";
 
         const prediction = {
-            id: parseInt(document.getElementById("id").value),
+            id: Math.floor(Date.now() * Math.random()),
             date: now, // Ahora con formato ISO correcto
             productId: document.getElementById("productId").value,
             unitsSold: parseInt(document.getElementById("unitsSold").value),
@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
             promotionActive: document.getElementById("promotionActive").checked,
             specialEvent: document.getElementById("specialEvent").value
         };
+            console.log("✅ API Request:", prediction);
 
         try {
             const response = await fetch("http://localhost:8080/predictor-stocks", {
@@ -206,10 +207,32 @@ async function loadPredictor() {
         tbody.innerHTML += row;
     });
 
+ try {
+      const res = await apiFetch("http://localhost:8080/products");
+      const products = await res.json();
+      const productSelect = document.getElementById("productId");
+      productSelect.innerHTML = ""; // Clear existing options
+
+      products.forEach(product => {
+        const option = document.createElement("option");
+        option.value = product.productId;
+        option.textContent = product.productId; // Display productName in the combo box
+        option.setAttribute("avgSalePrice", product.salePrice); // Guardar precio de venta
+        productSelect.appendChild(option);
+      });
+    } catch (error) {
+      console.error("Error loading product options:", error);
+    }
+
     loadPredictorBarGraphic();
     loadPredictionGraphic();
 }
 
+ // Actualizar `avgSalePrice` al cambiar de producto
+    document.getElementById("productId").addEventListener("change", () => {
+        const selectedOption = document.getElementById("productId").options[document.getElementById("productId").selectedIndex];
+        document.getElementById("avgSalePrice").value = selectedOption.getAttribute("avgSalePrice");
+    });
 // **Abrir formulario con datos precargados**
 function openPredictorForm(productId) {
     document.getElementById("productId").value = productId;

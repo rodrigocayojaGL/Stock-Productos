@@ -3,13 +3,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("movementForm").addEventListener("submit", async (e) => {
     e.preventDefault();
+            // Obtener fecha en formato correcto
+            const now = new Date().toISOString().slice(0, 19) + "Z";
     const movement = {
-      movementId: document.getElementById("movementId").value,
-      date: document.getElementById("date").value,
+      movementId: "M" + crypto.randomUUID(),
+      date: now, // Ahora con formato ISO correcto
       productId: document.getElementById("productId").value,
       movementType: document.getElementById("movementType").value,
       quantity: parseInt(document.getElementById("quantity").value),
-      orderId: document.getElementById("orderId").value,
+      orderId: "O" + crypto.randomUUID(),
       notes: document.getElementById("notes").value
     };
 
@@ -44,6 +46,22 @@ async function loadMovements() {
     </tr>`;
     tbody.innerHTML += row;
   });
+
+  try {
+      const res = await apiFetch("http://localhost:8080/products");
+      const products = await res.json();
+      const productSelect = document.getElementById("productId");
+      productSelect.innerHTML = ""; // Clear existing options
+
+      products.forEach(product => {
+        const option = document.createElement("option");
+        option.value = product.productId;
+        option.textContent = product.productId; // Display productName in the combo box
+        productSelect.appendChild(option);
+      });
+    } catch (error) {
+      console.error("Error loading product options:", error);
+    }
 }
 
 async function deleteMovement(id) {

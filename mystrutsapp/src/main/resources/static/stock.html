@@ -7,42 +7,72 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <div class="sidebar">
-    <h2>Inventory</h2>
+<!-- Barra lateral -->
+<aside class="sidebar">
+  <h2>Inventory</h2>
+  <nav>
     <a href="dashboard.html">Dashboard</a>
     <a href="products.html">Products</a>
     <a href="stock.html" class="active">Current Stock</a>
     <a href="movements.html">Inventory Movement</a>
     <a href="predictor.html">Predictor Stock</a>
     <a href="user.html">Users</a>
-    <a href="#" onclick="logout()">Log out</a>
-  </div>
-  <div class="content">
+  </nav>
+</aside>
+
+<!-- Contenido principal -->
+<main class="content">
+  <header>
     <h2>Current Stock</h2>
-    <button onclick="showForm()">+ Add Stock</button>
+    <button class="btn-primary" onclick="showForm()">+ Add Stock</button>
+  </header>
+
+  <!-- Tabla de stock -->
+  <section class="table-container">
     <table id="stockTable">
       <thead>
-        <tr>
-          <th>ID</th><th>Product ID</th><th>Quantity</th><th>Last Updated</th><th>Total Cost</th><th>Actions</th>
-        </tr>
+      <tr>
+        <th>ID</th><th>Product ID</th><th>Quantity</th><th>Last Updated</th><th>Total Cost</th><th>Actions</th>
+      </tr>
       </thead>
       <tbody></tbody>
     </table>
-    <div id="formContainer" class="form-popup hidden">
-      <h3>Add Stock</h3>
-      <form id="stockForm">
-        <input type="number" id="id" placeholder="ID" required />
-        <input type="text" id="productId" placeholder="Product ID" required />
+  </section>
+
+  <!-- Formulario emergente -->
+  <div id="formContainer" class="form-popup hidden">
+    <h3>Add Stock</h3>
+    <form id="stockForm">
+      <div class="form-group">
+        <label for="productId">Product ID</label>
+        <select id="productId" required></select>
+      </div>
+
+      <div class="form-group">
+        <label for="quantity">Quantity</label>
         <input type="number" id="quantity" placeholder="Quantity" required />
-        <input type="datetime-local" id="lastUpdated" required />
+      </div>
+
+      <div class="form-group">
+        <label for="totalInventoryCost">Total Cost</label>
         <input type="number" id="totalInventoryCost" placeholder="Total Cost" required />
-        <button type="submit">Save</button>
-        <button type="button" onclick="hideForm()">Cancel</button>
-      </form>
-    </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary" type="submit">Save</button>
+        <button class="btn-secondary" type="button" onclick="hideForm()">Cancel</button>
+      </div>
+    </form>
   </div>
-  <script src="js/auth.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/stock.js"></script>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <button class="btn-logout" onclick="logout()">Log out</button>
+</footer>
+
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/stock.js"></script>
 </body>
 </html>

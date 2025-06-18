@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Dashboard - Inventory App</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
@@ -12,13 +12,12 @@
 <aside class="sidebar">
     <h2>Inventory</h2>
     <nav>
-        <a href="dashboard.html">Dashboard</a>
+        <a href="dashboard.html" class="active">Dashboard</a>
         <a href="products.html">Products</a>
         <a href="stock.html">Current Stock</a>
         <a href="movements.html">Inventory Movement</a>
         <a href="predictor.html">Predictor Stock</a>
         <a href="user.html">Users</a>
-        <a href="#" onclick="logout()">Log out</a>
     </nav>
 </aside>
 
@@ -31,6 +30,11 @@
         <p>Select an option from the sidebar to manage inventory efficiently.</p>
     </section>
 </main>
+
+<!-- Footer -->
+<footer class="footer">
+    <button class="btn-logout" onclick="logout()">Log out</button>
+</footer>
 
 <script src="js/auth.js"></script>
 </body>

@@ -26,9 +26,9 @@ package ar.edu.udecy.web.inventory.controller.impl;
         }
 
         @Override
-        @GetMapping("/{id}")
-        public UserResponseDTO getUserById(@PathVariable Long id) {
-            return userService.getUserById(id);
+        @GetMapping("/{username}")
+        public UserResponseDTO getUserById(@PathVariable String username) {
+            return userService.getUserById(username);
         }
 
         @Override

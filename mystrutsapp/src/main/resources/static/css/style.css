@@ -1,15 +1,184 @@
+/* General */
 body {
   font-family: Arial, sans-serif;
-  margin: 0; display: flex;
+  margin: 0;
+  display: flex;
+  box-sizing: border-box;
 }
-.sidebar { width: 220px; background: #1f2937; color: white; padding: 20px; height: 100vh; }
-.sidebar a { color: white; display: block; margin: 10px 0; text-decoration: none; }
-.sidebar a.active { font-weight: bold; }
-.content { flex: 1; padding: 20px; background: #f9f9f9; }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-button { padding: 5px 10px; margin: 5px; }
-.hidden { display: none; }
-.login-container { max-width: 300px; margin: 100px auto; padding: 20px; border: 1px solid #ccc; background: white; }
-input { width: 100%; padding: 8px; margin: 5px 0; }
-.error { color: red; }
+
+/* Barra lateral */
+.sidebar {
+  width: 220px;
+  background: #1f2937;
+  color: white;
+  padding: 20px;
+  height: 100vh;
+}
+
+.sidebar a {
+  color: white;
+  display: block;
+  padding: 8px 10px;
+  margin: 5px 0;
+  text-decoration: none;
+  transition: background 0.3s ease-in-out;
+}
+
+.sidebar a:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar a.active {
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Contenido principal */
+.content {
+  flex: 1;
+  padding: 20px;
+  background: #f9f9f9;
+}
+
+/* Tablas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background: #e0e0e0;
+}
+
+/* Botones */
+button {
+  padding: 8px 12px;
+  margin: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #495057;
+}
+
+/* Formularios */
+.form-popup {
+  max-width: 400px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  background: white;
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Mostrar formulario */
+.form-popup.active {
+  display: block;
+}
+
+input, select {
+  width: 100%;
+  padding: 8px;
+  margin: 5px 0;
+}
+
+/* Gráficos */
+.charts {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.chart-container {
+  width: 100%;
+  max-width: 400px;
+  height: 250px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+  text-align: center;
+}
+
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+
+/* Login Container */
+.login-container {
+    max-width: 350px;
+    margin: 100px auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background: white;
+    text-align: center;
+}
+
+/* Input Fields */
+.form-group {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Buttons */
+.btn-primary {
+    background: #007bff;
+    color: white;
+    padding: 10px;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s ease-in-out;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+/* Error Messages */
+.error {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.hidden {
+    display: none;
+}

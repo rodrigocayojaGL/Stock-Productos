@@ -66,7 +66,7 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
 
         ProductEntity product = findProductById(inventoryMovementDTO.getProductId());
         inventoryMovementDTO.setDate(Objects.isNull(inventoryMovementDTO.getDate())? LocalDateTime.now() : inventoryMovementDTO.getDate());
-        deductFromCurrentStockPost(null ,product, inventoryMovementDTO.getQuantity(),inventoryMovementDTO.getMovementType());
+        deductFromCurrentStockPost(product, inventoryMovementDTO.getQuantity(),inventoryMovementDTO.getMovementType());
         InventoryMovementEntity entity = convertToEntity(inventoryMovementDTO, product);
         InventoryMovementEntity savedEntity = inventoryMovementRepository.save(entity);
 
@@ -91,7 +91,7 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
             if (Objects.isNull(inventoryMovementDTO.getMovementId())) {
                 deductFromCurrentStockPut(existingInventory, product, inventoryMovementDTO.getQuantity(), inventoryMovementDTO.getMovementType());
             } else {
-                deductFromCurrentStockPost(existingInventory, product, inventoryMovementDTO.getQuantity(), inventoryMovementDTO.getMovementType());
+                deductFromCurrentStockPost(product, inventoryMovementDTO.getQuantity(), inventoryMovementDTO.getMovementType());
             }
         }
         inventoryMovementDTO.setDate(LocalDateTime.now());
@@ -106,6 +106,14 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
         if (!inventoryMovementRepository.existsById(movementId)) {
             throw new ResourceNotFoundException("Inventory movement not found with ID: " + movementId);
         }
+
+        InventoryMovementEntity existingInventory = inventoryMovementRepository.findById(movementId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movement with ID " + movementId + " not found"));
+        ProductEntity product = findProductById(existingInventory.getProductId());
+
+        deductFromCurrentStockPost(product, existingInventory.getQuantity(),
+                existingInventory.getMovementType().equalsIgnoreCase("INBOUND")? "OUTBOUND" : "INBOUND");
+
         inventoryMovementRepository.deleteById(movementId);
     }
 
@@ -144,7 +152,7 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
         }
     }
 
-    private void deductFromCurrentStockPost(InventoryMovementEntity existingInventory, ProductEntity productEntity, int quantity, String movementType) {
+    private void deductFromCurrentStockPost(ProductEntity productEntity, int quantity, String movementType) {
         CurrentStockEntity currentStock = currentStockRepository.findByProduct_ProductId(productEntity.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Current stock not found for product ID: " + productEntity.getProductId()));
 
@@ -158,10 +166,6 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
 
             case "INBOUND":
                 currentStock.setQuantity(currentStock.getQuantity() + quantity);
-                break;
-
-            case "UPDATE":
-                currentStock.setQuantity(currentStock.getQuantity() + existingInventory.getQuantity() - quantity);
                 break;
 
             default:
@@ -187,10 +191,6 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
 
             case "INBOUND":
                 currentStock.setQuantity(currentStock.getQuantity() - existingInventory.getQuantity() + quantity);
-                break;
-
-            case "UPDATE":
-                currentStock.setQuantity(currentStock.getQuantity() + existingInventory.getQuantity() - quantity);
                 break;
 
             default:

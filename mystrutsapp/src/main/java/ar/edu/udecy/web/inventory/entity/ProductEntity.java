@@ -50,4 +50,10 @@ public class ProductEntity {
     private List<CurrentStockEntity> currentStockEntity; // Relación con el stock
     @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<PredictorStockEntity> predictorStockEntity; // Relación con el predictor de stock
+
+    public ProductEntity(long l, String productB, BigDecimal bigDecimal) {
+    }
+
+    public ProductEntity(String p1, String productA, Object o, BigDecimal bigDecimal) {
+    }
 }

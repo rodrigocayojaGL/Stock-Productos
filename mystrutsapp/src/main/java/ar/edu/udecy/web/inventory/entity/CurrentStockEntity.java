@@ -34,4 +34,6 @@ public class CurrentStockEntity {
     @Column(name = "total_inventory_cost")
     private BigDecimal totalInventoryCost;
 
+    public CurrentStockEntity(String p1, int i, BigDecimal bigDecimal, LocalDateTime now) {
+    }
 }

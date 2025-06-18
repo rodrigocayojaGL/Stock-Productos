@@ -19,6 +19,5 @@ public class PredictorStockDTO {
     private BigDecimal avgSalePrice;
     private boolean promotionActive;
     private String specialEvent;
-    private String moventId;
 
 }

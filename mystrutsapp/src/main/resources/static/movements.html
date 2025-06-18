@@ -31,13 +31,19 @@
     <div id="formContainer" class="form-popup hidden">
       <h3>Add Movement</h3>
       <form id="movementForm">
-        <input type="text" id="movementId" placeholder="Movement ID" required />
-        <input type="date" id="date" required />
-        <input type="text" id="productId" placeholder="Product ID" required />
-        <input type="text" id="movementType" placeholder="Type (INBOUND/OUTBOUND/...)" required />
+        <label>ProductId</label>
+        <select id="productId"></select>
+        <label>MovementType</label>
+        <select id="movementType" required>
+          <option value="" disabled selected>Select Type</option>
+          <option value="INBOUND">INBOUND</option>
+          <option value="OUTBOUND">OUTBOUND</option>
+        </select>
+        <label>Quantity</label>
         <input type="number" id="quantity" placeholder="Quantity" required />
-        <input type="text" id="orderId" placeholder="Order ID" />
+        <label>Notes</label>
         <input type="text" id="notes" placeholder="Notes" />
+
         <button type="submit">Save</button>
         <button type="button" onclick="hideForm()">Cancel</button>
       </form>

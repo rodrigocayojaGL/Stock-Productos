@@ -3,11 +3,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("stockForm").addEventListener("submit", async (e) => {
     e.preventDefault();
+
+      // Obtener fecha en formato correcto
+    const now = new Date().toISOString().slice(0, 19) + "Z";
     const stock = {
-      id: parseInt(document.getElementById("id").value),
+      id: Math.floor(Date.now() * Math.random()),
       productId: document.getElementById("productId").value,
       quantity: parseInt(document.getElementById("quantity").value),
-      lastUpdated: document.getElementById("lastUpdated").value,
+      lastUpdated:  now, // Ahora con formato ISO correcto
       totalInventoryCost: parseFloat(document.getElementById("totalInventoryCost").value)
     };
 
@@ -42,6 +45,22 @@ async function loadStock() {
     </tr>`;
     tbody.innerHTML += row;
   });
+
+   try {
+        const res = await apiFetch("http://localhost:8080/products");
+        const products = await res.json();
+        const productSelect = document.getElementById("productId");
+        productSelect.innerHTML = ""; // Clear existing options
+
+        products.forEach(product => {
+          const option = document.createElement("option");
+          option.value = product.productId;
+          option.textContent = product.productId; // Display productName in the combo box
+          productSelect.appendChild(option);
+        });
+      } catch (error) {
+        console.error("Error loading product options:", error);
+      }
 }
 
 async function deleteStock(id) {

@@ -1,16 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Predictor Stock - Inventory App</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
-<!-- Barra lateral -->
-<aside class="sidebar">
+<div class="sidebar">
   <h2>Inventory App</h2>
   <nav>
     <a href="dashboard.html">Dashboard</a>
@@ -21,10 +19,9 @@
     <a href="user.html">Users</a>
     <a href="#" onclick="logout()">Log out</a>
   </nav>
-</aside>
+</div>
 
-<!-- Contenido principal -->
-<main class="content">
+<div class="content">
   <header>
     <h2>Predictor Stock</h2>
     <button class="btn-primary" onclick="showForm()">+ Add Sale</button>
@@ -59,33 +56,40 @@
   <div id="formContainer" class="form-popup hidden">
     <h3>Add Sale</h3>
     <form id="predictorForm">
-      <label>ID</label>
-      <input type="number" id="id" required />
 
-      <label>Date</label>
-      <input type="datetime-local" id="date" required />
+      <div class="form-group">
+        <label for="productId">Product ID</label>
+        <select id="productId" required></select>
+      </div>
 
-      <label>Product ID</label>
-      <input type="text" id="productId" required />
+      <div class="form-group">
+        <label for="unitsSold">Units Sold</label>
+        <input type="number" id="unitsSold" required />
+      </div>
 
-      <label>Units Sold</label>
-      <input type="number" id="unitsSold" required />
+      <div class="form-group">
+        <label for="avgSalePrice">Avg Price</label>
+        <input type="number" step="0.01" id="avgSalePrice" value="29.99" readonly />
+      </div>
 
-      <label>Avg Price</label>
-      <input type="number" step="0.01" id="avgSalePrice" required />
+      <div class="form-group">
+        <label for="promotionActive">Promotion Active</label>
+        <input type="checkbox" id="promotionActive" />
+      </div>
 
-      <label>
-        <input type="checkbox" id="promotionActive" /> Promotion Active
-      </label>
+      <div class="form-group">
+        <label for="specialEvent">Special Event</label>
+        <input type="text" id="specialEvent" />
+      </div>
 
-      <label>Special Event</label>
-      <input type="text" id="specialEvent" />
+      <div class="form-actions">
+        <button class="btn-primary" type="submit">Save</button>
+        <button class="btn-secondary" type="button" onclick="hideForm()">Cancel</button>
+      </div>
 
-      <button class="btn-primary" type="submit">Save</button>
-      <button class="btn-secondary" type="button" onclick="hideForm()">Cancel</button>
     </form>
   </div>
-</main>
+
 
 <script src="js/auth.js"></script>
 <script src="js/api.js"></script>

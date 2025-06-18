@@ -44,14 +44,14 @@ public class PredictorStockProductServiceImpl implements PredictorStockService {
     @Override
     public List<PredictorStockDTO> findAll() {
         return predictorStockRepository.findAll().stream()
-                .map(entity -> mapToDTO(entity, null)) // Pass null for movementId
+                .map(this::mapToDTO) // Pass null for movementId
                 .collect(Collectors.toList());
     }
 
     @Override
     public PredictorStockDTO findById(Long id) {
         return predictorStockRepository.findById(id)
-                .map(entity -> mapToDTO(entity, null)) // Pass null for movementId
+                .map(this::mapToDTO) // Pass null for movementId
                 .orElseThrow(() -> new ResourceNotFoundException("PredictorStock with ID " + id + " not found"));
     }
 
@@ -67,17 +67,17 @@ public class PredictorStockProductServiceImpl implements PredictorStockService {
         // Save PredictorStock
         PredictorStockEntity savedEntity = predictorStockRepository.save(entity);
 
-        // Register Current Stock and Inventory Movement
-        InventoryMovementDTO dto  = new InventoryMovementDTO();
-        String moventId = generateMovementId();
-        dto.setMovementId(moventId); // Replace `generateMovementId()` with your logic to generate or retrieve the ID
-        dto.setProductId(savedEntity.getProduct().getProductId());
-        dto.setQuantity(savedEntity.getUnitsSold());
-        dto.setMovementType("OUTBOUND");
-        dto.setDate(savedEntity.getDate());
-        dto.setOrderId(generateOrderId());
-        inventoryMovementService.save(dto);
-        return mapToDTO(savedEntity, moventId);
+//        // Register Current Stock and Inventory Movement
+//        InventoryMovementDTO dto  = new InventoryMovementDTO();
+//        String moventId = generateMovementId();
+//        dto.setMovementId(moventId); // Replace `generateMovementId()` with your logic to generate or retrieve the ID
+//        dto.setProductId(savedEntity.getProduct().getProductId());
+//        dto.setQuantity(savedEntity.getUnitsSold());
+//        dto.setMovementType("OUTBOUND");
+//        dto.setDate(savedEntity.getDate());
+//        dto.setOrderId(generateOrderId());
+//        inventoryMovementService.save(dto);
+        return mapToDTO(savedEntity);
     }
 
     private String generateOrderId() {
@@ -105,13 +105,13 @@ public class PredictorStockProductServiceImpl implements PredictorStockService {
         // Save the updated entity
         PredictorStockEntity updatedEntity = predictorStockRepository.save(existingEntity);
 
-        // Update inventory movement
-
-        InventoryMovementDTO movementDTO = createInventoryMovementDTO(updatedEntity,predictorStockDTO.getMoventId());
-        inventoryMovementService.update(predictorStockDTO.getMoventId(), movementDTO);
+//        // Update inventory movement
+//
+//        InventoryMovementDTO movementDTO = createInventoryMovementDTO(updatedEntity,predictorStockDTO.getMoventId());
+//        inventoryMovementService.update(predictorStockDTO.getMoventId(), movementDTO);
 
         // Return the updated DTO
-        return mapToDTO(updatedEntity, predictorStockDTO.getMoventId());
+        return mapToDTO(updatedEntity);
     }
 
     private InventoryMovementDTO createInventoryMovementDTO(PredictorStockEntity entity, String movementId) {
@@ -132,7 +132,7 @@ public class PredictorStockProductServiceImpl implements PredictorStockService {
 
 
 
-    private PredictorStockDTO mapToDTO(PredictorStockEntity entity, String movmentId) {
+    private PredictorStockDTO mapToDTO(PredictorStockEntity entity) {
         return new PredictorStockDTO(
                 entity.getId(),
                 entity.getDate(),
@@ -140,8 +140,8 @@ public class PredictorStockProductServiceImpl implements PredictorStockService {
                 entity.getUnitsSold(),
                 entity.getAvgSalePrice(),
                 entity.isPromotionActive(),
-                entity.getSpecialEvent(),
-                movmentId
+                entity.getSpecialEvent()
+
         );
     }
 
